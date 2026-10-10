@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>크리스티드 게코 키우기</title>
+  <link rel="icon" href="image/gecko-shortcut.ico" sizes="any">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=20261010_34">
+</head>
+<body>
+  <!-- 최상단 헤더 -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <span class="brand-icon">🦎</span>
+        <div>
+          <h1 class="brand-title">크리스티드 게코 키우기</h1>
+          <p id="owner-greeting" class="owner-greeting">집사님, 오늘도 함께 돌봐요!</p>
+          <p class="brand-sub">스마트 스케줄러 · AI 건강 진단 · 30일 드래곤 진화 육성</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-login" class="btn-secondary" type="button">👤 로그인</button>
+        <button id="btn-sound-toggle" class="btn-icon" title="효과음 켜기/끄기">
+          <span id="sound-icon">🔔</span>
+        </button>
+        <button id="btn-profile-edit" class="btn-secondary">
+          <span>⚙️</span> 게코 프로필 / API 설정
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- 캐릭터 진화 & 출석체크 섹션 -->
+    <section class="hero-evolution-section">
+      <div class="evolution-card">
+        <!-- 캐릭터 디스플레이 영역 -->
+        <div class="character-display">
+          <div class="speech-bubble" id="character-speech">
+            <span class="speech-text">집사님 안녕! 나 크림이야~ 오늘도 나 보러 와줘서 너무 좋아! 🦎💕</span>
+            <div class="bubble-arrow"></div>
+          </div>
+          
+          <div class="avatar-stage-container" id="avatar-container">
+            <!-- 동적 아바타 및 진화 오버레이가 JavaScript로 렌더링됩니다 -->
+            <div id="gecko-svg-wrapper" class="gecko-svg-wrapper"></div>
+            <div class="character-shadow"></div>
+          </div>
+
+          <div class="stage-info-pill">
+            <span class="stage-tag" id="stage-badge">1단계</span>
+            <span class="stage-name" id="stage-name">아기 크레 크림이</span>
+          </div>
+        </div>
+
+        <!-- 출석 및 진화 진행도 정보 -->
+        <div class="evolution-details">
+          <div class="pet-summary">
+            <div class="pet-name-row">
+              <h2 id="pet-display-name">크림</h2>
+              <span class="pet-morph-badge" id="pet-display-morph">릴리 화이트</span>
+              <span class="pet-dday-badge" id="pet-display-dday">함께한 지 12일째</span>
+            </div>
+            <p class="pet-desc" id="stage-description">
+              동그란 눈망울과 호기심 가득한 아기 도마뱀 크림이입니다. 30일 연속 출석하면 전설의 천상룡으로 진화해요!
+            </p>
+          </div>
+
+          <!-- 연속 출석 프로그레스 -->
+          <div class="streak-box">
+            <div class="streak-header">
+              <div class="streak-count">
+                <span class="fire-icon">🔥</span>
+                <span class="streak-num" id="streak-count">0</span>
+                <span class="streak-label">일 연속 출석 중!</span>
+              </div>
+              <div class="next-evo-info" id="next-evo-info">
+                오늘 출석체크를 하면 <strong>1일차</strong>가 됩니다! 🐾
+              </div>
+            </div>
+
+            <!-- 프로그레스 바 -->
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="evolution-progress-bar" style="width: 0%;"></div>
+            </div>
+
+            <div class="evolution-steps-indicator">
+              <span class="step-point" data-day="1" title="외형 미리보기: 1일 (아기 크레)">🐣 1일</span>
+              <span class="step-point" data-day="7" title="외형 미리보기: 7일 (주니어 크레)">🌿 7일</span>
+              <span class="step-point" data-day="14" title="외형 미리보기: 14일 (성체 크레)">👑 14일</span>
+              <span class="step-point" data-day="21" title="외형 미리보기: 21일 (날개 비룡)">🪽 21일</span>
+              <span class="step-point" data-day="30" title="외형 미리보기: 30일 (신화의 천상룡 드래곤!)">🐉 30일!</span>
+            </div>
+          </div>
+
+          <!-- 출석 버튼 및 툴바 -->
+          <div class="evolution-actions">
+            <button id="btn-checkin" class="btn-checkin">
+              <span class="checkin-icon">🐾</span>
+              <span class="checkin-text" id="checkin-btn-text">오늘 출석체크 도장 찍기!</span>
+            </button>
+            <button id="btn-view-stamps" class="btn-outline">
+              📅 30일 스탬프 판 보기
+            </button>
+            <!-- 테스팅/시연용 빠른 진화 체인징 -->
+            <div class="test-controls" title="출석일수는 변하지 않고, 오직 진화 외형만 미리 체험해볼 수 있습니다">
+              <span class="test-label">체험 미리보기:</span>
+              <button class="btn-test-stage" data-day="1">1일 (아기)</button>
+              <button class="btn-test-stage" data-day="7">7일 (주니어)</button>
+              <button class="btn-test-stage" data-day="14">14일 (성체)</button>
+              <button class="btn-test-stage" data-day="21">21일 (날개)</button>
+              <button class="btn-test-stage" data-day="30">30일 (드래곤!)</button>
+              <button class="btn-test-stage" id="btn-restore-preview" style="display:none; background:#ecfdf5; border-color:#10b981; color:#065f46; font-weight:700;">↩️ 내 원래 크림이</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 탭 네비게이션 -->
+    <nav class="main-tabs">
+      <button class="tab-btn active" data-tab="schedule">
+        <span class="tab-icon">📅</span>
+        <span>스케줄 & 루틴표</span>
+      </button>
+      <button class="tab-btn" data-tab="vision">
+        <span class="tab-icon">🔍</span>
+        <span>AI 사진 건강 진단</span>
+      </button>
+      <button class="tab-btn" data-tab="chat">
+        <span class="tab-icon">💬</span>
+        <span>AI 도마뱀 상담소</span>
+      </button>
+      <button class="tab-btn" data-tab="diary">
+        <span class="tab-icon">📖</span>
+        <span>도마뱀 일기 & 체중</span>
+      </button>
+    </nav>
+
+    <!-- 탭 컨텐츠 영역 -->
+    <div class="tab-content-wrapper">
+      
+      <!-- ================= [1] 스케줄 & 루틴 관리표 ================= -->
+      <section id="tab-schedule" class="tab-pane active">
+        <div class="schedule-grid">
+          
+          <!-- 오늘의 케어 체크리스트 -->
+          <div class="card schedule-today-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">✅</span>
+                <div>
+                  <h3 class="card-title">오늘의 게코 케어 체크리스트</h3>
+                  <p class="card-sub" id="today-date-text">2026년 10월 6일 화요일</p>
+                </div>
+              </div>
+              <button id="btn-add-todo" class="btn-sm btn-outline">+ 항목 추가</button>
+            </div>
+
+            <div class="checklist-summary">
+              <div class="summary-stat">
+                <span>완료율</span>
+                <strong id="todo-percent">0%</strong>
+              </div>
+              <div class="todo-progress-line">
+                <div id="todo-progress-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <ul class="todo-list" id="todo-list">
+              <!-- JS로 렌더링 -->
+            </ul>
+          </div>
+
+          <!-- 환경 모니터링 (온습도 관리) -->
+          <div class="card env-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">🌡️</span>
+                <div>
+                  <h3 class="card-title">크레 맞춤 온·습도 모니터링</h3>
+                  <p class="card-sub">권장: 온도 22~26°C / 습도 60~80%</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="env-dials">
+              <div class="dial-item">
+                <div class="dial-label">현재 사육장 온도</div>
+                <div class="dial-value-row">
+                  <input type="number" id="input-current-temp" value="24.5" step="0.5" min="15" max="35">
+                  <span class="dial-unit">°C</span>
+                </div>
+                <div class="dial-status safe" id="temp-status-badge">쾌적 (적정 온도)</div>
+              </div>
+
+              <div class="dial-item">
+                <div class="dial-label">현재 사육장 습도</div>
+                <div class="dial-value-row">
+                  <input type="number" id="input-current-humidity" value="70" step="5" min="20" max="100">
+                  <span class="dial-unit">%</span>
+                </div>
+                <div class="dial-status safe" id="humidity-status-badge">촉촉 (적정 습도)</div>
+              </div>
+            </div>
+
+            <div class="env-tips-box">
+              <div class="tip-header">💡 온습도 케어 팁</div>
+              <p id="env-care-tip">
+                크레스티드 게코는 28°C 이상의 고온에 매우 취약합니다! 여름철에는 쿨링 팬이나 에어컨을 가동하고, 저녁에 사육장 벽면에 충분히 분무해 탈피를 도와주세요.
+              </p>
+            </div>
+          </div>
+
+          <!-- 주간 케어 사이클 루틴표 -->
+          <div class="card routine-table-card full-width">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">🗓️</span>
+                <div>
+                  <div class="weekly-title-row">
+                    <h3 class="card-title">주간 정기 케어 스케줄 가이드</h3>
+                    <button type="button" class="btn-secondary" id="btn-edit-weekly" aria-expanded="false" aria-controls="weekly-schedule-form">✏️ 수정</button>
+                  </div>
+                  <p class="card-sub">요일별 급여와 케어 내용을 수정할 수 있습니다.</p>
+                </div>
+              </div>
+            </div>
+
+            <span id="weekly-save-status" class="weekly-save-status" role="status"></span>
+            <form id="weekly-schedule-form" class="hidden">
+              <div id="weekly-schedule-fields" class="weekly-cycle-grid"></div>
+              <p class="field-hint">저장한 스케줄은 현재 브라우저에 보관됩니다.</p>
+              <div class="weekly-edit-actions">
+                <button type="submit" class="btn-primary">저장</button>
+                <button type="button" class="btn-secondary" id="btn-cancel-weekly">취소</button>
+              </div>
+            </form>
+            <div class="weekly-cycle-grid" id="weekly-cycle-grid">
+              <!-- 요일별 카드 JS 렌더링 -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- ================= [2] AI 사진 건강 진단 ================= -->
+      <section id="tab-vision" class="tab-pane">
+        <div class="vision-container">
+          
+          <!-- 업로드 및 스캐너 패널 -->
+          <div class="card vision-upload-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">📸</span>
+                <div>
+                  <h3 class="card-title">게코 사진 건강 스캐너</h3>
+                  <p class="card-sub">실제 사진에서 보이는 눈, 피부, 꼬리, 체형, 발가락의 외형을 분석합니다</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 드롭존 -->
+            <div class="upload-dropzone" id="dropzone">
+              <input type="file" id="gecko-photo-input" accept="image/*" class="file-input-hidden">
+              <div class="dropzone-content" id="dropzone-prompt">
+                <div class="upload-icon">📷</div>
+                <h4>사진을 이곳에 끌어다 놓거나 클릭해서 업로드</h4>
+                <p>전신, 눈, 꼬리, 발바닥이 잘 보이는 사진일수록 정확합니다 (JPG, PNG)</p>
+                <button type="button" class="btn-primary" id="btn-select-file">사진 선택하기</button>
+              </div>
+
+              <!-- 이미지 미리보기 & 스캐너 레이저 이펙트 -->
+              <div class="image-preview-area hidden" id="preview-area">
+                <img id="preview-img" src="" alt="게코 사진 미리보기">
+                <div id="gecko-detection-overlay" class="gecko-detection-overlay" aria-label="AI가 찾은 도마뱀 위치"></div>
+                <div class="scanner-laser" id="scanner-laser"></div>
+                <div class="scanner-overlay-grid"></div>
+                <button type="button" class="btn-close-preview" id="btn-clear-photo" title="사진 지우기">✕</button>
+              </div>
+            </div>
+
+            <p class="field-hint">실제 도마뱀 사진을 업로드해주세요. Gemini API 키가 필요하며, 사진은 분석을 위해 Google에 전송됩니다.</p>
+
+            <div class="vision-action-row">
+              <button id="btn-run-analysis" class="btn-primary btn-large" disabled>
+                <span>🔬</span> AI 건강 상태 정밀 진단 시작하기
+              </button>
+            </div>
+          </div>
+
+          <!-- 진단 결과 리포트 패널 -->
+          <div class="card vision-result-card" id="vision-result-container">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">📋</span>
+                <div>
+                  <h3 class="card-title">AI 정밀 건강 검진 리포트</h3>
+                  <p class="card-sub" id="report-timestamp">사진을 업로드하면 자동으로 분석을 시작합니다</p>
+                </div>
+              </div>
+              <span class="health-score-badge normal" id="overall-score-badge">대기 중</span>
+            </div>
+
+            <!-- 분석 진행 애니메이션 -->
+            <div class="analysis-loading hidden" id="analysis-loading">
+              <div class="spinner"></div>
+              <h4>AI가 도마뱀의 신체 부위를 스캔하고 있습니다...</h4>
+              <p id="analysis-step-text">사진 분석을 준비하고 있습니다.</p>
+            </div>
+
+            <!-- 분석 결과 컨텐츠 -->
+            <div class="report-content" id="report-content">
+              <div class="empty-state-box">
+                <div class="empty-icon">🦎🔍</div>
+                <p>실제 도마뱀 사진을 업로드하면<br><strong>자동으로 분석을 시작합니다.</strong> 사진에서 관찰한 특징과 추가 확인이 필요한 부분을 안내합니다.</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- ================= [3] AI 도마뱀 케어 상담소 ================= -->
+      <section id="tab-chat" class="tab-pane">
+        <div class="chat-container card">
+          <div class="chat-header">
+            <div class="doctor-profile">
+              <div class="doctor-avatar">🦎👨‍⚕️</div>
+              <div>
+                <h3 class="doctor-name">게코 닥터 AI</h3>
+                <p class="doctor-status">온도·습도·슈푸 피딩·질병 전문 실시간 상담사</p>
+              </div>
+            </div>
+            <div class="chat-api-bar">
+              <span class="api-status-badge" id="chat-api-status-badge">
+                <span class="status-dot" id="chat-status-dot"></span>
+                <span id="ai-mode-tag">내장 지식 엔진 모드</span>
+              </span>
+
+            </div>
+          </div>
+
+          <!-- 퀵 퀘스천 추천 버튼 -->
+          <div class="quick-questions">
+            <span class="quick-label">자주 묻는 질문:</span>
+            <button class="btn-quick-q" data-q="슈퍼푸드를 며칠째 안 먹어요. 어떻게 해야 할까요?">🥣 슈푸 안 먹을 때</button>
+            <button class="btn-quick-q" data-q="적정 사육장 온도와 습도는 몇 도로 유지해야 하나요?">🌡️ 적정 온습도 세팅</button>
+            <button class="btn-quick-q" data-q="발가락 끝에 탈피 껍질이 남아있는데 어떻게 떼어주나요?">🦎 탈피 껍질 온욕법</button>
+            <button class="btn-quick-q" data-q="MBD(대사성 골질환)의 원인과 예방용 칼슘제 급여법은?">🦴 MBD 예방법</button>
+            <button class="btn-quick-q" data-q="처음 입양했는데 핸들링은 언제부터 가능한가요?">🤲 핸들링 적응기</button>
+            <button class="btn-quick-q" data-q="30일 연속 출석하면 정말 드래곤으로 진화하나요?">🐉 드래곤 진화 조건</button>
+          </div>
+
+          <!-- 메시지 스크롤 영역 -->
+          <div class="chat-messages" id="chat-messages">
+            <!-- 기본 환영 메시지 -->
+            <div class="chat-message assistant">
+              <div class="msg-avatar">🦎</div>
+              <div class="msg-bubble">
+                <p id="chat-welcome-text">반가워요, 집사님! 크리스티드 게코 전문 AI 상담사입니다. 🌿</p>
+                <p>슈퍼푸드 급여, 사육장 온·습도 조절, 탈피 껍질 관리, 또는 건강 이상 신호 등 궁금한 점이 있다면 무엇이든 편하게 물어보세요!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 메시지 입력 폼 -->
+          <form class="chat-input-bar" id="chat-form">
+            <input type="text" id="chat-input" placeholder="도마뱀의 생활 환경이나 건강 고민을 질문해보세요..." autocomplete="off">
+            <button type="submit" class="btn-primary" id="btn-chat-send">
+              <span>전송</span> 🚀
+            </button>
+          </form>
+        </div>
+      </section>
+
+
+      <!-- ================= [4] 도마뱀 일기 & 체중 기록 ================= -->
+      <section id="tab-diary" class="tab-pane">
+        <div class="diary-layout">
+          
+          <!-- 일기 작성 폼 -->
+          <div class="card diary-form-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">✍️</span>
+                <div>
+                  <h3 class="card-title">오늘의 게코 다이어리 작성</h3>
+                  <p class="card-sub">몸무게, 피딩량, 탈피 및 배변 상태를 기록하세요</p>
+                </div>
+              </div>
+            </div>
+
+            <p id="cloud-diary-status" class="field-hint" role="status" aria-live="polite"></p>
+            <div class="weekly-edit-actions cloud-diary-actions">
+              <button type="button" class="btn-secondary" id="btn-cloud-refresh">온라인 기록 다시 불러오기</button>
+              <button type="button" class="btn-secondary" id="btn-import-local-diaries">이 브라우저의 기존 기록 가져오기</button>
+              <button type="button" class="btn-secondary" id="btn-export-local-diaries">로컬 기록 백업</button>
+              <button type="button" class="btn-secondary" id="btn-import-diary-file">백업 파일 가져오기</button>
+              <input type="file" id="diary-import-file" accept=".json,application/json" class="hidden">
+            </div>
+            <form id="diary-form">
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="diary-date">기록 날짜</label>
+                  <input type="date" id="diary-date" required>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="diary-weight">체중 (g)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="diary-weight" step="0.1" min="0" max="100" placeholder="예: 18.5" required>
+                    <span class="unit-text">g</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="diary-feed">피딩 내역</label>
+                  <select id="diary-feed">
+                    <option value="슈퍼푸드 (완식)">🥣 슈퍼푸드 (완식)</option>
+                    <option value="슈퍼푸드 (절반 먹음)">🥣 슈퍼푸드 (절반 섭취)</option>
+                    <option value="귀뚜라미 + 칼슘 더스팅">🦗 귀뚜라미 + 칼슘 더스팅</option>
+                    <option value="먹이 거부 / 금식일">❌ 먹이 거부 또는 휴식일</option>
+                  </select>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="diary-poop">배변 상태</label>
+                  <select id="diary-poop">
+                    <option value="정상 변 (요산 포함)">💩 정상 변 (요산+대변 양호)</option>
+                    <option value="무른 변">⚠️ 다소 무른 변</option>
+                    <option value="배변 없음">⏳ 배변 없음</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="diary-shed">탈피 상태</label>
+                  <select id="diary-shed">
+                    <option value="이상 없음">✨ 깨끗함 (탈피 없음)</option>
+                    <option value="탈피 준비 (발색 하얘짐)">🤍 탈피 준비 중 (뿌연 발색)</option>
+                    <option value="완전 탈피 성공">🎉 탈피 껍질 스스로 완식</option>
+                    <option value="탈피 부전 (껍질 잔여)">⚠️ 발가락/꼬리 탈피 부전</option>
+                  </select>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="diary-photo">사진 첨부 (선택)</label>
+                  <input type="file" id="diary-photo" accept="image/*">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="diary-notes">오늘의 관찰 일기 & 집사 메모</label>
+                <textarea id="diary-notes" rows="3" placeholder="오늘 도마뱀의 활력도, 벽 타는 상태, 귀여웠던 행동 등을 적어주세요!"></textarea>
+              </div>
+
+              <button type="submit" class="btn-primary btn-block">
+                <span>📝</span> 일기 저장하기
+              </button>
+            </form>
+          </div>
+
+          <!-- 체중 성장 추이 차트 -->
+          <div class="card diary-chart-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">📈</span>
+                <div>
+                  <h3 class="card-title">몸무게 성장 그래프</h3>
+                  <p class="card-sub">기록된 체중 변화와 권장 성장 단계</p>
+                </div>
+              </div>
+              <span class="badge-growth-phase" id="current-growth-phase">성장 단계 파악 중</span>
+            </div>
+
+            <div class="chart-canvas-wrapper">
+              <canvas id="weight-chart" width="600" height="240"></canvas>
+            </div>
+
+            <div class="weight-guidelines">
+              <div class="guide-item"><span>해츨링 (베이비):</span> 1 ~ 10g</div>
+              <div class="guide-item"><span>아성체 (주니어):</span> 10 ~ 25g</div>
+              <div class="guide-item"><span>준성체~성체:</span> 25 ~ 45g+</div>
+            </div>
+          </div>
+
+          <!-- 기록된 일기 목록 -->
+          <div class="card diary-history-card full-width">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">📚</span>
+                <div>
+                  <h3 class="card-title">지난 게코 다이어리 기록</h3>
+                  <p class="card-sub" id="diary-count-text">총 0개의 기록</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="diary-list-grid" id="diary-list">
+              <!-- JS로 렌더링 -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 30일 출석체크 스탬프 모달 -->
+  <div class="modal-backdrop hidden" id="stamp-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-icon">🐾</span>
+          <div>
+            <h3>30일 연속 출석체크 스탬프 판</h3>
+            <p>매일 출석체크 도장을 찍고 최종 30일차 드래곤으로 진화시키세요!</p>
+          </div>
+        </div>
+        <button class="modal-close" id="btn-close-stamp">✕</button>
+      </div>
+
+      <div class="stamp-board-grid" id="stamp-board">
+        <!-- 30개 타일 JS로 렌더링 -->
+      </div>
+
+      <div class="modal-footer">
+        <p class="modal-tip">💡 30일 연속 출석 시 천상계 엠페러 드래곤 칭호와 특수 이펙트가 해금됩니다!</p>
+        <button class="btn-primary" id="btn-modal-checkin-confirm">오늘 도장 찍기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 게코 프로필 및 API 설정 모달 -->
+  <div class="modal-backdrop hidden" id="settings-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-icon">⚙️</span>
+          <div>
+            <h3>게코 프로필 / API 설정</h3>
+            <p>집사 이름, 게코 정보와 Google Gemini API 키를 관리합니다</p>
+          </div>
+        </div>
+        <button class="modal-close" id="btn-close-settings">✕</button>
+      </div>
+
+      <form id="settings-form" class="settings-form">
+        <div class="form-group">
+          <label for="cfg-owner-name">집사 이름</label>
+          <input type="text" id="cfg-owner-name" maxlength="30" placeholder="예: 민수">
+          <p class="field-hint">이름을 저장하면 화면과 상담에서 ‘집사 민수님’처럼 불러드려요.</p>
+        </div>
+        <div class="form-group">
+          <label for="cfg-pet-name">도마뱀 이름</label>
+          <input type="text" id="cfg-pet-name" value="크림" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cfg-pet-morph">도마뱀 모프 (품종/패턴)</label>
+          <input type="text" id="cfg-pet-morph" value="릴리 화이트" placeholder="예: 릴리 화이트, 익스트림 하를리퀸, 프라푸치노">
+        </div>
+
+        <div class="form-group">
+          <label for="cfg-pet-bday">입양일 또는 생일</label>
+          <input type="date" id="cfg-pet-bday">
+        </div>
+
+        <div class="settings-divider"></div>
+
+        <div class="form-group">
+          <button type="button" id="btn-toggle-api-settings" class="btn-outline" aria-expanded="false" aria-controls="api-key-settings">API Key (선택 사항) 설정 열기</button>
+          <fieldset id="api-key-settings" class="api-key-settings hidden" disabled>
+            <label for="cfg-gemini-key">Google Gemini API Key</label>
+            <input type="password" id="cfg-gemini-key" placeholder="AI Studio API 키 입력 (자동 저장)">
+            <p id="api-key-save-status" class="field-hint" role="status"></p>
+            <div class="api-key-file-actions">
+              <button type="button" id="btn-save-settings-key" class="btn-sm btn-primary">API 키 연동</button>
+              <button type="button" id="btn-use-builtin-mode" class="btn-sm btn-outline">키 삭제 / 내장 모드</button>
+              <button type="button" id="btn-export-api-key" class="btn-sm btn-outline">키 파일 저장</button>
+              <button type="button" id="btn-import-api-key" class="btn-sm btn-outline">키 파일 불러오기</button>
+              <input type="file" id="api-key-file-input" accept=".json,application/json" hidden>
+            </div>
+          </fieldset>
+          <p class="field-hint">
+            * 키 파일 저장 시 <strong>이 앱의 index.html이 있는 폴더</strong>를 선택해주세요.<br>
+            * 사진 분석에는 <strong>Gemini API 키</strong>가 필요합니다. 키 없이 상담소의 내장 지식 답변을 사용할 수 있습니다.<br>
+            * 실제 Gemini의 실시간 멀티모달 비전 기능을 직접 사용하고 싶다면 Google AI Studio 무료 키를 입력해주세요.
+          </p>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="btn-reset-data">초기화 (데이터 리셋)</button>
+          <button type="submit" class="btn-primary">설정 저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="auth-modal">
+    <section class="modal-card auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+      <div class="modal-header">
+        <div>
+          <h2 id="auth-title">집사 로그인</h2>
+          <p id="auth-subtitle" class="card-sub">가입한 이메일과 비밀번호로 로그인하세요.</p>
+        </div>
+        <button type="button" class="modal-close" id="auth-close" aria-label="로그인 창 닫기">✕</button>
+      </div>
+      <form id="auth-form">
+        <div class="form-group">
+          <label for="auth-email">이메일</label>
+          <input id="auth-email" type="email" autocomplete="username" required maxlength="254" placeholder="이메일 주소">
+        </div>
+        <div class="form-group">
+          <label for="auth-password">비밀번호</label>
+          <input id="auth-password" type="password" autocomplete="current-password" required minlength="6" maxlength="128" placeholder="비밀번호">
+        </div>
+        <label class="auth-remember-label">
+          <input id="auth-remember-email" type="checkbox">
+          이메일 기억하기
+        </label>
+        <button type="submit" class="btn-primary" id="auth-submit" disabled>로그인</button>
+        <button type="button" class="auth-mode-toggle" id="auth-recover-request" disabled>비밀번호를 잊으셨나요? 복구 메일 받기</button>
+        <button type="button" class="auth-mode-toggle" id="auth-mode-toggle">처음 오셨나요? 회원가입</button>
+      </form>
+      <form id="auth-reset-form" class="hidden">
+        <div class="form-group">
+          <label for="auth-new-password">새 비밀번호</label>
+          <input id="auth-new-password" type="password" autocomplete="new-password" required minlength="8" maxlength="128" placeholder="8자 이상">
+        </div>
+        <div class="form-group">
+          <label for="auth-confirm-password">새 비밀번호 확인</label>
+          <input id="auth-confirm-password" type="password" autocomplete="new-password" required minlength="8" maxlength="128" placeholder="새 비밀번호를 다시 입력하세요">
+        </div>
+        <button type="submit" class="btn-primary" id="auth-reset-submit" disabled>새 비밀번호 저장</button>
+        <button type="button" class="auth-mode-toggle" id="auth-reset-cancel">취소하고 로그아웃</button>
+      </form>
+      <div id="auth-account" class="hidden">
+        <p id="auth-account-email"></p>
+        <button type="button" class="btn-secondary" id="auth-logout">로그아웃</button>
+      </div>
+      <p id="auth-message" class="auth-message" role="status" aria-live="polite"></p>
+      <p id="auth-local-note" class="field-hint"></p>
+    </section>
+  </div>
+
+  <!-- 축하 컨페티 효과 캔버스 -->
+  <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+  <script src="app.js?v=20261010_34"></script>
+  <script src="cloud-config.js?v=20261009_29"></script>
+  <script src="cloud.js?v=20261010_34"></script>
+  <script src="auth.js?v=20261010_34"></script>
+</body>
+</html>
