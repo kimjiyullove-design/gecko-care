@@ -2939,3 +2939,52 @@ function escapeHtml(str) {
 
 // 브라우저 로드시 초기화
 document.addEventListener('DOMContentLoaded', initApp);
+
+// 페이지 맨 위에서만 아래로 당겨 새로고침합니다.
+document.addEventListener('DOMContentLoaded', () => {
+  const indicator = document.createElement('div');
+  indicator.className = 'pull-refresh-indicator';
+  indicator.setAttribute('role', 'status');
+  document.body.appendChild(indicator);
+  let startY = null;
+  let startX = 0;
+  let distance = 0;
+  let refreshing = false;
+  const reset = () => {
+    startY = null;
+    distance = 0;
+    indicator.classList.remove('visible');
+  };
+  document.addEventListener('touchstart', event => {
+    reset();
+    if (refreshing || event.touches.length !== 1 || window.scrollY > 0 ||
+        document.querySelector('.modal-backdrop:not(.hidden)') ||
+        event.target.closest('input, textarea, select, [contenteditable], [role="dialog"]')) return;
+    // 채팅이나 모달처럼 내부에서 스크롤하는 영역은 제외합니다.
+    for (let el = event.target; el && el !== document.body; el = el.parentElement) {
+      if (el.scrollHeight > el.clientHeight && /auto|scroll/.test(getComputedStyle(el).overflowY)) return;
+    }
+    startY = event.touches[0].clientY;
+    startX = event.touches[0].clientX;
+  }, { passive: true });
+  document.addEventListener('touchmove', event => {
+    if (startY === null) return;
+    if (event.touches.length !== 1) { reset(); return; }
+    const dy = event.touches[0].clientY - startY;
+    if (dy <= 0 || Math.abs(event.touches[0].clientX - startX) > dy || window.scrollY > 0) { reset(); return; }
+    distance = dy;
+    if (dy > 12) {
+      if (event.cancelable) event.preventDefault();
+      indicator.textContent = dy >= 100 ? '↻ 놓으면 새로고침' : '↓ 아래로 당겨 새로고침';
+      indicator.classList.add('visible');
+    }
+  }, { passive: false });
+  document.addEventListener('touchend', () => {
+    if (startY !== null && distance >= 100) {
+      refreshing = true;
+      indicator.textContent = '↻ 새로고침 중…';
+      window.location.reload();
+    } else reset();
+  }, { passive: true });
+  document.addEventListener('touchcancel', reset, { passive: true });
+});
