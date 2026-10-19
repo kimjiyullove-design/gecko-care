@@ -2470,14 +2470,19 @@ function initApp() {
   renderOwnerProfile();
 
   // 1. 출석 체크 버튼 기능 (하루 1회만 가능: 미출석 시 클릭해야 1일 달성 및 도장 완료!)
-  function performCheckIn() {
+  async function performCheckIn() {
     const todayStr = getTodayString();
     const isFirstToday = !AppState.attendance.history.includes(todayStr);
 
     if (isFirstToday) {
+      if (window.GeckoAttendance?.enabled) {
+        try { await window.GeckoAttendance.checkIn(todayStr); }
+        catch (error) { alert(error.message); return; }
+      } else {
       AppState.attendance.history.push(todayStr);
       AppState.attendance.lastChecked = todayStr;
       AppState.attendance.streak += 1;
+      }
       AppState.previewDay = null; // 출석 완료 시 미리보기 상태 해제
       saveStorage();
 

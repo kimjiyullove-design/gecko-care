@@ -80,6 +80,7 @@ const GeckoCloud = (() => {
   }
 
   function setSession(nextClient, nextUser) {
+    window.GeckoAttendance?.setSession(nextClient, nextUser);
     if (!enabled || (user?.id || null) === (nextUser?.id || null)) return;
     generation++; client = nextClient; user = nextUser; ready = false; busy = false;
     AppState.diaries = []; renderDiary(); controls();
