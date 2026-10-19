@@ -72,10 +72,6 @@ const GeckoAttendance = (() => {
     try { if (running) await running; await sync(); } catch { /* status explains retry */ }
     if (user?.id !== id) throw new Error('계정이 변경되었습니다. 현재 계정의 출석 기록을 확인해주세요.');
   }
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
-  window.addEventListener('focus', refresh);
-  window.addEventListener('online', refresh);
-  setInterval(() => { if (!document.hidden) refresh(); }, 30000);
   return { enabled, setSession, checkIn, refresh };
 })();
 window.GeckoAttendance = GeckoAttendance;
